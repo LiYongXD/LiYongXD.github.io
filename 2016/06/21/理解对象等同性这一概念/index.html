@@ -84,16 +84,16 @@
 
 
 
-<meta name="description" content="==、isEqual、isEqualToString方法的不同">
+<meta name="description" content="==、isEqual、等同性判定方法(isEqualToString)方法的不同== OC中的对象都是用指针表示，方法的调用是基于消息机制实现，== 比较的自然是指针指向的地址.isEqual比较复杂,这个我们单独拿出来讲,现在我们就认为通常情况下跟==是一样的.在某些类中可能会提供等同性判定方法比如,isEqualToString,isEqualToArray,isEqualToDictiona">
 <meta property="og:type" content="article">
 <meta property="og:title" content="理解对象等同性这一概念">
 <meta property="og:url" content="www.devyong.com/2016/06/21/理解对象等同性这一概念/index.html">
 <meta property="og:site_name" content="草地上奔跑的壮汉">
-<meta property="og:description" content="==、isEqual、isEqualToString方法的不同">
-<meta property="og:updated_time" content="2016-06-21T09:22:00.000Z">
+<meta property="og:description" content="==、isEqual、等同性判定方法(isEqualToString)方法的不同== OC中的对象都是用指针表示，方法的调用是基于消息机制实现，== 比较的自然是指针指向的地址.isEqual比较复杂,这个我们单独拿出来讲,现在我们就认为通常情况下跟==是一样的.在某些类中可能会提供等同性判定方法比如,isEqualToString,isEqualToArray,isEqualToDictiona">
+<meta property="og:updated_time" content="2016-06-22T03:19:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="理解对象等同性这一概念">
-<meta name="twitter:description" content="==、isEqual、isEqualToString方法的不同">
+<meta name="twitter:description" content="==、isEqual、等同性判定方法(isEqualToString)方法的不同== OC中的对象都是用指针表示，方法的调用是基于消息机制实现，== 比较的自然是指针指向的地址.isEqual比较复杂,这个我们单独拿出来讲,现在我们就认为通常情况下跟==是一样的.在某些类中可能会提供等同性判定方法比如,isEqualToString,isEqualToArray,isEqualToDictiona">
 
 
 
@@ -352,7 +352,20 @@
       
 
       
-        <h2 id="3D_3D_u3001isEqual_u3001isEqualToString_u65B9_u6CD5_u7684_u4E0D_u540C"><a href="#3D_3D_u3001isEqual_u3001isEqualToString_u65B9_u6CD5_u7684_u4E0D_u540C" class="headerlink" title="==、isEqual、isEqualToString方法的不同"></a>==、isEqual、isEqualToString方法的不同</h2>
+        <h2 id="3D_3D_u3001isEqual_u3001_u7B49_u540C_u6027_u5224_u5B9A_u65B9_u6CD5_28isEqualToString_29_u65B9_u6CD5_u7684_u4E0D_u540C"><a href="#3D_3D_u3001isEqual_u3001_u7B49_u540C_u6027_u5224_u5B9A_u65B9_u6CD5_28isEqualToString_29_u65B9_u6CD5_u7684_u4E0D_u540C" class="headerlink" title="==、isEqual、等同性判定方法(isEqualToString)方法的不同"></a>==、isEqual、等同性判定方法(isEqualToString)方法的不同</h2><p>== OC中的对象都是用指针表示，方法的调用是基于消息机制实现，== 比较的自然是指针指向的地址.<br>isEqual比较复杂,这个我们单独拿出来讲,现在我们就认为通常情况下跟==是一样的.<br>在某些类中可能会提供等同性判定方法比如,isEqualToString,isEqualToArray,isEqualToDictionary.使用这种方法判断相等比isEqual方法要快,因为不需要检查所属的类是否为同一个.</p>
+<h2 id="u590D_u5199isEqual_u65B9_u6CD5"><a href="#u590D_u5199isEqual_u65B9_u6CD5" class="headerlink" title="复写isEqual方法"></a>复写isEqual方法</h2><p>复写isEqual方法的好处可以让代码简洁易懂<br>下面是为了复写Perosn类的isEqual方法的示例和优化的过程</p>
+<ol>
+<li>实现isEqual方法<figure class="highlight objc"><figcaption><span>objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)isEqual:(<span class="keyword">id</span>)object</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">self</span> == object) <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">    <span class="keyword">if</span>([<span class="keyword">self</span> class] != [object class])<span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    </span><br><span class="line">    Person *person = (Person *)object;</span><br><span class="line">    <span class="keyword">if</span>(![_name isEqualToString:person<span class="variable">.name</span>])</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    <span class="keyword">if</span>(_age != person<span class="variable">.age</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>第二步.重写hash方法<figure class="highlight objc"><figcaption><span>objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">NSUInteger</span>)hash</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1337</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u6539_u5199hash_u65B9_u6CD5"><a href="#u6539_u5199hash_u65B9_u6CD5" class="headerlink" title="改写hash方法"></a>改写hash方法</h3>上面的写法会有一个弊端,虽然把Person类的所有hash方法都是同一个hash了,但如果将该类的对象放进一个集合中,拿Set集合来说吧,Set集合会把所有元素按照hash返回的值进行分”块”管理,如果hash都返回同一个值,才进行isEqual比较,难免效率低.<br>所以可以采用这种方式.<figure class="highlight objc"><figcaption><span>objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">NSUInteger</span>)hash</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSUInteger</span> nameHash = [_name hash];</span><br><span class="line">    <span class="keyword">return</span> _age ^ nameHash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这种做法能将生成的hashcode保持在一定的范围内,不会频繁的重复.<blockquote>
+<p>Array,Dictionary,Set都称为集合.</p>
+</blockquote>
+</li>
+</ol>
+<p>如果isEqual方法判定两个对象相等,那么其hash方法也必须返回同一个值.但是,如果两个对象的hash方法返回同一个值,其isEqual方法并不一定会判定为相等.</p>
+<p>##</p>
+
       
     </div>
 
@@ -383,6 +396,10 @@
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/22/跟风/" rel="prev" title="跟风">
+                跟风 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -460,7 +477,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">22</span>
+              <span class="site-state-item-count">23</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -524,7 +541,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#3D_3D_u3001isEqual_u3001isEqualToString_u65B9_u6CD5_u7684_u4E0D_u540C"><span class="nav-number">1.</span> <span class="nav-text">==、isEqual、isEqualToString方法的不同</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#3D_3D_u3001isEqual_u3001_u7B49_u540C_u6027_u5224_u5B9A_u65B9_u6CD5_28isEqualToString_29_u65B9_u6CD5_u7684_u4E0D_u540C"><span class="nav-number">1.</span> <span class="nav-text">==、isEqual、等同性判定方法(isEqualToString)方法的不同</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u590D_u5199isEqual_u65B9_u6CD5"><span class="nav-number">2.</span> <span class="nav-text">复写isEqual方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u6539_u5199hash_u65B9_u6CD5"><span class="nav-number">2.1.</span> <span class="nav-text">改写hash方法</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
