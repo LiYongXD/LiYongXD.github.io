@@ -87,13 +87,13 @@
 <meta name="description" content="有时需要在既有对象中存放其他数据,我们通常会继承它,然后改写该类.然而有些类的实例是由某种机制创建的,开发者无法创建出该类的实例,比如私有API.这时可以使用关联特性
 关联特性
 可以给某个对象关联多个对象,通过键来区分,跟字典相似.
-设置为关联的对象指明存储策略,用以维护相应的.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.
+设置为关联的对象指明存储策略,用以维护相应的内存管理语义.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.
 
 
 
 
 关联类型
-等效的@pro">
+等">
 <meta property="og:type" content="article">
 <meta property="og:title" content="在既有对象中关联其他对象,存放数据">
 <meta property="og:url" content="www.devyong.com/2016/06/23/在既有对象中关联其他对象-存放数据/index.html">
@@ -101,26 +101,26 @@
 <meta property="og:description" content="有时需要在既有对象中存放其他数据,我们通常会继承它,然后改写该类.然而有些类的实例是由某种机制创建的,开发者无法创建出该类的实例,比如私有API.这时可以使用关联特性
 关联特性
 可以给某个对象关联多个对象,通过键来区分,跟字典相似.
-设置为关联的对象指明存储策略,用以维护相应的.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.
+设置为关联的对象指明存储策略,用以维护相应的内存管理语义.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.
 
 
 
 
 关联类型
-等效的@pro">
-<meta property="og:updated_time" content="2016-06-23T02:56:38.000Z">
+等">
+<meta property="og:updated_time" content="2016-06-23T03:01:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="在既有对象中关联其他对象,存放数据">
 <meta name="twitter:description" content="有时需要在既有对象中存放其他数据,我们通常会继承它,然后改写该类.然而有些类的实例是由某种机制创建的,开发者无法创建出该类的实例,比如私有API.这时可以使用关联特性
 关联特性
 可以给某个对象关联多个对象,通过键来区分,跟字典相似.
-设置为关联的对象指明存储策略,用以维护相应的.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.
+设置为关联的对象指明存储策略,用以维护相应的内存管理语义.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.
 
 
 
 
 关联类型
-等效的@pro">
+等">
 
 
 
@@ -382,7 +382,7 @@
         <p>有时需要在既有对象中存放其他数据,我们通常会继承它,然后改写该类.然而有些类的实例是由某种机制创建的,开发者无法创建出该类的实例,比如私有API.这时可以使用<code>关联特性</code></p>
 <h2 id="u5173_u8054_u7279_u6027"><a href="#u5173_u8054_u7279_u6027" class="headerlink" title="关联特性"></a>关联特性</h2><ol>
 <li>可以给某个对象关联多个对象,通过<code>键</code>来区分,跟字典相似.</li>
-<li>设置为关联的对象指明<code>存储策略</code>,用以维护相应的.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.</li>
+<li>设置为关联的对象指明<code>存储策略</code>,用以维护相应的<a href="/2016/06/21/Objective-C中的属性修饰符/" title="内存管理语义">内存管理语义</a>.存储策略由名为objc_AssociationPolicy枚举所定义,该枚举取值如下.</li>
 </ol>
 <table>
 <thead>
@@ -426,7 +426,7 @@
 <blockquote>
 <p>上面这种做法的好处是代码比较简洁,把Alert代码创建和用户点击后的逻辑写在了一起.</p>
 </blockquote>
-<h2 id="u7F3A_u70B9"><a href="#u7F3A_u70B9" class="headerlink" title="缺点"></a>缺点</h2><p>关联<code>block</code>时,因为<code>block</code>可能要捕获某些变量,这也许会造成循环引用.因为最好不要用了.哈哈哈哈!CNMD!</p>
+<h2 id="u7F3A_u70B9"><a href="#u7F3A_u70B9" class="headerlink" title="缺点"></a>缺点</h2><p>关联<code>block</code>时,因为<code>block</code>可能要捕获某些变量,这也许会造成循环引用.所以最好不要用了.哈哈哈哈!CNMD!</p>
 
       
     </div>
