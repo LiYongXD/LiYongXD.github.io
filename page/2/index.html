@@ -298,6 +298,250 @@
             
               
                 
+                <a class="post-title-link" href="/2016/06/07/AsyncUdpSocket使用笔记/" itemprop="url">
+                  AsyncUdpSocket使用笔记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-07T12:20:35+08:00" content="2016-06-07">
+              2016-06-07
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/07/AsyncUdpSocket使用笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/07/AsyncUdpSocket使用笔记/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/06/07/AsyncUdpSocket使用笔记/" class="leancloud_visitors" data-flag-title="AsyncUdpSocket使用笔记">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="AsyncUdpSocket_u4F7F_u7528_u7B14_u8BB0"><a href="#AsyncUdpSocket_u4F7F_u7528_u7B14_u8BB0" class="headerlink" title="AsyncUdpSocket使用笔记"></a>AsyncUdpSocket使用笔记</h2><p>AsyncUdpSocket与GCDAsyncUdpSocket不同,前者是基于Runloop的,Runloop我不懂,但我歪打正着就用上了,下面就说说</p>
+<ol>
+<li>AsyncUdpSocket默认只在主线程中生效,因为主线程的Runloop默认是开启的,如果AsyncUdpSocket的代码写在子线程就不会生效,不会发出收到任何消息.</li>
+<li>如果想在子线程中生效需要开启子线程的Runloop,下面是示例代码:<figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">        <span class="keyword">self</span><span class="variable">.socket</span> = [[AsyncUdpSocket alloc]initWithDelegate:<span class="keyword">self</span>];</span><br><span class="line">        Byte bytes[] = &#123;<span class="string">'a'</span>,<span class="string">'b'</span>&#125;;</span><br><span class="line">        [<span class="keyword">self</span><span class="variable">.socket</span> sendData:[<span class="built_in">NSData</span> dataWithBytes:bytes length:<span class="number">2</span>] toHost:<span class="string">@"127.0.0.1"</span> port:<span class="number">55056</span> withTimeout:<span class="number">5</span> tag:<span class="number">0</span>];</span><br><span class="line">        [<span class="keyword">self</span><span class="variable">.socket</span> bindToPort:<span class="number">55123</span> error:<span class="literal">nil</span>];</span><br><span class="line">        [<span class="keyword">self</span><span class="variable">.socket</span> receiveWithTimeout:<span class="number">30</span> tag:<span class="number">0</span>];</span><br><span class="line">        [[<span class="built_in">NSRunLoop</span> currentRunLoop] run];<span class="comment">//开启Runloop</span></span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure></li>
+<li>该Socket在子线程A中运行,用它发送消息的时候必须也在该线程发消息,如果你在线程B中使用该Socket发送,也会发不出去.解决方法:用线程之间通信.<figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#import <span class="title">"ViewController.h"</span></span></span><br><span class="line"><span class="preprocessor">#import <span class="title">"AsyncUdpSocket.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ViewController</span> ()&lt;<span class="title">AsyncUdpSocketDelegate</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) AsyncUdpSocket * socket;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">weak</span>,<span class="keyword">nonatomic</span>) <span class="built_in">NSThread</span> *socketThread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line">    <span class="comment">// Do any additional setup after loading the view, typically from a nib.</span></span><br><span class="line">    <span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;<span class="comment">//线程A</span></span><br><span class="line">        <span class="keyword">self</span><span class="variable">.socket</span> = [[AsyncUdpSocket alloc]initWithDelegate:<span class="keyword">self</span>];</span><br><span class="line">        Byte bytes[] = &#123;<span class="string">'a'</span>,<span class="string">'b'</span>&#125;;</span><br><span class="line">        [<span class="keyword">self</span><span class="variable">.socket</span> sendData:[<span class="built_in">NSData</span> dataWithBytes:bytes length:<span class="number">2</span>] toHost:<span class="string">@"127.0.0.1"</span> port:<span class="number">55056</span> withTimeout:<span class="number">5</span> tag:<span class="number">0</span>];</span><br><span class="line">        [<span class="keyword">self</span><span class="variable">.socket</span> bindToPort:<span class="number">55123</span> error:<span class="literal">nil</span>];</span><br><span class="line">        [<span class="keyword">self</span><span class="variable">.socket</span> receiveWithTimeout:<span class="number">30</span> tag:<span class="number">0</span>];</span><br><span class="line">        [[<span class="built_in">NSRunLoop</span> currentRunLoop] run];</span><br><span class="line">        <span class="keyword">self</span><span class="variable">.socketThread</span> = [<span class="built_in">NSThread</span> currentThread];<span class="comment">//将线程保存</span></span><br><span class="line">    &#125;);</span><br><span class="line">    [<span class="built_in">NSThread</span> sleepForTimeInterval:<span class="number">1</span>];</span><br><span class="line">    <span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;<span class="comment">//线程B</span></span><br><span class="line">        <span class="comment">//使用该方法进行线程间通信,传入Socket,可以在这里做下判断</span></span><br><span class="line">        <span class="keyword">if</span>([<span class="built_in">NSThread</span> currentThread] != <span class="keyword">self</span><span class="variable">.thread</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            [<span class="keyword">self</span> performSelector:<span class="keyword">@selector</span>(socketsend) onThread:<span class="keyword">self</span><span class="variable">.socketThread</span> withObject:<span class="literal">nil</span> waitUntilDone:<span class="literal">YES</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line">- (<span class="keyword">void</span>)socketsend</span><br><span class="line">&#123;</span><br><span class="line">    Byte bytes[] = &#123;<span class="string">'C'</span>,<span class="string">'D'</span>&#125;;</span><br><span class="line">    [<span class="keyword">self</span><span class="variable">.socket</span> sendData:[<span class="built_in">NSData</span> dataWithBytes:bytes length:<span class="number">2</span>] toHost:<span class="string">@"127.0.0.1"</span> port:<span class="number">55056</span> withTimeout:<span class="number">5</span> tag:<span class="number">0</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/02/01/SVN常见问题/" itemprop="url">
+                  SVN常见问题
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-01T13:05:30+08:00" content="2016-02-01">
+              2016-02-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/源代码管理工具/" itemprop="url" rel="index">
+                    <span itemprop="name">源代码管理工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/02/01/SVN常见问题/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/01/SVN常见问题/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/02/01/SVN常见问题/" class="leancloud_visitors" data-flag-title="SVN常见问题">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Some_of_the_items_in_this_working_copy_are_out-of-date"><a href="#Some_of_the_items_in_this_working_copy_are_out-of-date" class="headerlink" title="Some of the items in this working copy are out-of-date."></a>Some of the items in this working copy are out-of-date.</h2><p>在StackOverFlow看到的答案,解决问题的方法是,在终端中cd到项目的根目录,<br><code>svn update</code><br>在提交就OK了.</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/01/18/常用正则表达式/" itemprop="url">
                   常用正则表达式
                 </a>
@@ -1296,271 +1540,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/12/16/学习方法总结/" itemprop="url">
-                  学习方法总结
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-12-16T12:30:40+08:00" content="2015-12-16">
-              2015-12-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/心得/" itemprop="url" rel="index">
-                    <span itemprop="name">心得</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/12/16/学习方法总结/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/16/学习方法总结/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/12/16/学习方法总结/" class="leancloud_visitors" data-flag-title="学习方法总结">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>自己做的是Socket编程,当时靠百度,资料确实少,当时找了好长时间.今天在github搜索代码的时候发现了一个用Hexo搭建的博客,他也做过socket,写的还挺详细.这才意识到并不是写socket编程的博客少,是百度没有收录.以后在github上搜搜博客,啥的.多看博客,能节约不少时间.</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/12/16/iOS常用第三方框架/" itemprop="url">
-                  iOS常用第三方框架
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-12-16T11:18:19+08:00" content="2015-12-16">
-              2015-12-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/12/16/iOS常用第三方框架/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/16/iOS常用第三方框架/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/12/16/iOS常用第三方框架/" class="leancloud_visitors" data-flag-title="iOS常用第三方框架">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="u83B7_u53D6_u672C_u673AIP"><a href="#u83B7_u53D6_u672C_u673AIP" class="headerlink" title="获取本机IP"></a>获取本机IP</h2><figure class="highlight objc"><figcaption><span>HYBIPHelper.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  HYBIPHelper.h</span></span><br><span class="line"><span class="comment">//  XiaoYaoUser</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Created by 黄仪标 on 14/12/9.</span></span><br><span class="line"><span class="comment">//  Copyright (c) 2014年 xiaoyaor. All rights reserved.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#import <span class="title">&lt;Foundation/Foundation.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">HYBIPHelper</span> : <span class="title">NSObject</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*!</span><br><span class="line">* get device ip address</span><br><span class="line">*/</span></span><br><span class="line">+ (<span class="built_in">NSString</span> *)deviceIPAdress;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight objc"><figcaption><span>HYBIPHelper.m</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  HYBIPHelper.m</span></span><br><span class="line"><span class="comment">//  XiaoYaoUser</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Created by 黄仪标 on 14/12/9.</span></span><br><span class="line"><span class="comment">//  Copyright (c) 2014年 xiaoyaor. All rights reserved.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#import <span class="title">"HYBIPHelper.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#include <span class="title">&lt;ifaddrs.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#include <span class="title">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">HYBIPHelper</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="built_in">NSString</span> *)deviceIPAdress &#123;</span><br><span class="line"><span class="built_in">NSString</span> *address = <span class="string">@"an error occurred when obtaining ip address"</span>;</span><br><span class="line"><span class="keyword">struct</span> ifaddrs *interfaces = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">struct</span> ifaddrs *temp_addr = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">int</span> success = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">success = getifaddrs(&amp;interfaces);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (success == <span class="number">0</span>) &#123; <span class="comment">// 0 表示获取成功</span></span><br><span class="line"></span><br><span class="line">temp_addr = interfaces;</span><br><span class="line"><span class="keyword">while</span> (temp_addr != <span class="literal">NULL</span>) &#123;</span><br><span class="line"><span class="keyword">if</span>( temp_addr-&gt;ifa_addr-&gt;sa_family == AF_INET) &#123;</span><br><span class="line"><span class="comment">// Check if interface is en0 which is the wifi connection on the iPhone</span></span><br><span class="line"><span class="keyword">if</span> ([[<span class="built_in">NSString</span> stringWithUTF8String:temp_addr-&gt;ifa_name] isEqualToString:<span class="string">@"en0"</span>]) &#123;</span><br><span class="line"><span class="comment">// Get NSString from C String</span></span><br><span class="line">address = [<span class="built_in">NSString</span> stringWithUTF8String:inet_ntoa(((<span class="keyword">struct</span> sockaddr_in *)temp_addr-&gt;ifa_addr)-&gt;sin_addr)];</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">temp_addr = temp_addr-&gt;ifa_next;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">freeifaddrs(interfaces);</span><br><span class="line"><span class="keyword">return</span> address;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
-<h2 id="SvUDID"><a href="#SvUDID" class="headerlink" title="SvUDID"></a>SvUDID</h2><p>苹果禁用了获取UDID的API,之后又禁用了获取Mac地址的API,所以大神们研究出来的使用KeyChain方法.<br><a href="https://github.com/smileEvday/SvUDID" target="_blank" rel="external">https://github.com/smileEvday/SvUDID</a></p>
-<h2 id="FTPManager"><a href="#FTPManager" class="headerlink" title="FTPManager"></a>FTPManager</h2><h4 id="u7B2C_u4E00_u6B65__u521D_u59CB_u5316GRRequestsManager"><a href="#u7B2C_u4E00_u6B65__u521D_u59CB_u5316GRRequestsManager" class="headerlink" title="第一步 初始化GRRequestsManager"></a>第一步 初始化GRRequestsManager</h4><figure class="highlight objc"><figcaption><span>HYBIPHelper.m</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">self</span><span class="variable">.requestsManager</span> = [[GRRequestsManager alloc] initWithHostname:<span class="keyword">self</span><span class="variable">.ipString</span> user:<span class="keyword">self</span><span class="variable">.userNameString</span> password:<span class="keyword">self</span><span class="variable">.passwordString</span>];</span><br></pre></td></tr></table></figure>
-<h4 id="u7B2C_u4E8C_u6B65__u8BBE_u7F6E_u4EE3_u7406"><a href="#u7B2C_u4E8C_u6B65__u8BBE_u7F6E_u4EE3_u7406" class="headerlink" title="第二步 设置代理"></a>第二步 设置代理</h4><figure class="highlight objc"><figcaption><span>HYBIPHelper.m</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="keyword">self</span><span class="variable">.requestsManager</span> setDelegate:<span class="keyword">self</span>];</span><br></pre></td></tr></table></figure>
-<h4 id="u7B2C_u4E09_u6B65__u4E0D_u77E5_u9053"><a href="#u7B2C_u4E09_u6B65__u4E0D_u77E5_u9053" class="headerlink" title="第三步 不知道.."></a>第三步 不知道..</h4><figure class="highlight objc"><figcaption><span>HYBIPHelper.m</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="keyword">self</span><span class="variable">.requestsManager</span> addRequestForListDirectoryAtPath:<span class="string">@"/"</span>];</span><br></pre></td></tr></table></figure>
-<h4 id="u7B2C_u4E09_u6B65_linkstart_21_21"><a href="#u7B2C_u4E09_u6B65_linkstart_21_21" class="headerlink" title="第三步 linkstart!!"></a>第三步 linkstart!!</h4><figure class="highlight objc"><figcaption><span>HYBIPHelper.m</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="keyword">self</span><span class="variable">.requestsManager</span> startProcessingRequests];</span><br></pre></td></tr></table></figure>
-<h3 id="u8981_u91CD_u5199_u4EE3_u7406_u65B9_u6CD5"><a href="#u8981_u91CD_u5199_u4EE3_u7406_u65B9_u6CD5" class="headerlink" title="要重写代理方法"></a>要重写代理方法</h3><figure class="highlight objc"><figcaption><span>HYBIPHelper.m</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)requestsManager:(<span class="keyword">id</span>&lt;GRRequestsManagerProtocol&gt;)requestsManager didStartRequest:(<span class="keyword">id</span>&lt;GRRequestProtocol&gt;)request</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"requestsManager:didStartRequest:"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)requestsManager:(<span class="keyword">id</span>&lt;GRRequestsManagerProtocol&gt;)requestsManager didCompleteListingRequest:(<span class="keyword">id</span>&lt;GRRequestProtocol&gt;)request listing:(<span class="built_in">NSArray</span> *)listing</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSString</span> *title = getString(<span class="string">@"LoginSuccess"</span>);</span><br><span class="line">    [HUDProgress showWithTitle:title type:HUDProgressTypeMessage afterDelay:[HUDProgress timeWithTitle:title] callback:^&#123;</span><br><span class="line">        [<span class="keyword">self</span><span class="variable">.emptyView</span> removeFromSuperview];</span><br><span class="line">    &#125;];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"requestsManager:didCompleteListingRequest:listing: \n%@"</span>, listing);</span><br><span class="line">    [<span class="keyword">self</span> onRefresh:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)requestsManager:(<span class="keyword">id</span>&lt;GRRequestsManagerProtocol&gt;)requestsManager didCompleteUploadRequest:(<span class="keyword">id</span>&lt;GRDataExchangeRequestProtocol&gt;)request</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"requestsManager:didCompleteUploadRequest:"</span>);</span><br><span class="line">    [HUDProgress showWithTitle:getString(<span class="string">@"UPS"</span>) type:HUDProgressTypeMessage];</span><br><span class="line">    <span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">    <span class="comment">//        for (int i = 0; i &lt; self.udtSockets.count; i++) &#123;</span></span><br><span class="line">    <span class="comment">//            BOOL isSuccess = NO;</span></span><br><span class="line">    <span class="comment">//            UdpManager *udtManager = self.udtSockets[i];</span></span><br><span class="line">    <span class="comment">//            if ([udtManager getsockstate]&lt;6 &amp;&amp; [udtManager sendWithMsg:self.tempDic]) &#123;</span></span><br><span class="line">    <span class="comment">//                isSuccess = YES;</span></span><br><span class="line">    <span class="comment">//            &#125;</span></span><br><span class="line">    <span class="comment">//            dispatch_async(dispatch_get_main_queue(), ^&#123;</span></span><br><span class="line">    <span class="comment">//                if (isSuccess) &#123;</span></span><br><span class="line">    <span class="comment">//                    [HUDProgress showWithTitle:[NSString stringWithFormat:@"%@ 屏幕通知成功", udtManager.ip] type:HUDProgressTypeMessage];</span></span><br><span class="line">    <span class="comment">//                &#125; else &#123;</span></span><br><span class="line">    <span class="comment">////                    [HUDProgress showWithTitle:[NSString stringWithFormat:@"%@ 屏幕通知失败", udtManager.ip] type:HUDProgressTypeMessage];</span></span><br><span class="line">    <span class="comment">//                &#125;</span></span><br><span class="line">    <span class="comment">//            &#125;);</span></span><br><span class="line">    <span class="comment">//        &#125;</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)requestsManager:(<span class="keyword">id</span>&lt;GRRequestsManagerProtocol&gt;)requestsManager didFailRequest:(<span class="keyword">id</span>&lt;GRRequestProtocol&gt;)request withError:(<span class="built_in">NSError</span> *)error</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"requestsManager:didFailRequest:withError: \n %@"</span>, error);</span><br><span class="line">    <span class="keyword">if</span> ([requestsManager isMemberOfClass:[GRUploadRequest class]]) &#123;</span><br><span class="line">        [HUDProgress showWithTitle:getString(<span class="string">@"UPF"</span>) type:HUDProgressTypeMessage];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *title = getString(<span class="string">@"ListController.didFailRequest"</span>);</span><br><span class="line">        [HUDProgress showWithTitle:title type:HUDProgressTypeMessage afterDelay:[HUDProgress timeWithTitle:title] callback:^&#123;</span><br><span class="line">        [<span class="keyword">self</span> back:<span class="literal">nil</span>];</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1606,7 +1585,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">25</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
