@@ -308,6 +308,133 @@
             
               
                 
+                <a class="post-title-link" href="/2016/06/21/Objective-C中的属性修饰符/" itemprop="url">
+                  Objective-C中的属性修饰符
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-21T09:08:33+08:00" content="2016-06-21">
+              2016-06-21
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/21/Objective-C中的属性修饰符/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/21/Objective-C中的属性修饰符/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/06/21/Objective-C中的属性修饰符/" class="leancloud_visitors" data-flag-title="Objective-C中的属性修饰符">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="u5C5E_u6027_u4FEE_u9970_u7B26_28_u5C5E_u6027_u7279_u8D28_29"><a href="#u5C5E_u6027_u4FEE_u9970_u7B26_28_u5C5E_u6027_u7279_u8D28_29" class="headerlink" title="属性修饰符(属性特质)"></a>属性修饰符(属性特质)</h2><h3 id="u5C5E_u6027_u4FEE_u9970_u7B26_u5305_u62EC_u662F_u5426_u4E3A_u539F_u5B50_u6027_u3001_u8BFB_u5199_u6743_u9650_u3001_u5185_u5B58_u7BA1_u7406_u8BED_u4E49_u3001_u65B9_u6CD5_u540D"><a href="#u5C5E_u6027_u4FEE_u9970_u7B26_u5305_u62EC_u662F_u5426_u4E3A_u539F_u5B50_u6027_u3001_u8BFB_u5199_u6743_u9650_u3001_u5185_u5B58_u7BA1_u7406_u8BED_u4E49_u3001_u65B9_u6CD5_u540D" class="headerlink" title="属性修饰符包括是否为原子性、读写权限、内存管理语义、方法名"></a>属性修饰符包括是否为原子性、读写权限、内存管理语义、方法名</h3><hr>
+<h3 id="u539F_u5B50_u6027_3Anonatomic_u548Catomic"><a href="#u539F_u5B50_u6027_3Anonatomic_u548Catomic" class="headerlink" title="原子性:nonatomic和atomic"></a>原子性:nonatomic和atomic</h3><p>atomic：默认是有该属性的，这个属性是为了保证程序在多线程情况下，编译器会自动生成一些互斥加锁代码，避免该变量的读写不同步问题。<br>nonatomic：如果该对象无需考虑多线程的情况，请加入这个属性，这样会让编译器少生成一些互斥加锁代码，可以提高效率。</p>
+<p>atomic的意思就是setter/getter这个函数，是一个原语操作。如果有多个线程同时调用setter的话，不会出现某一个线程执行完setter全部语句之前，另一个线程开始执行setter情况，相当于函数头尾加了锁一样，可以保证数据的完整性。nonatomic不保证setter/getter的原语行，所以你可能会取到不完整的东西。因此，在多线程的环境下原子操作是非常必要的，否则有可能会引起错误的结果。</p>
+<p>下面是载录的网上一段加了atomic的例子：<br><figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;lock&#125;</span><br><span class="line"><span class="keyword">if</span> (property != newValue) &#123; </span><br><span class="line">[property release]; </span><br><span class="line">property = [newValue retain]; </span><br><span class="line">&#125;</span><br><span class="line">&#123;unlock&#125;</span><br></pre></td></tr></table></figure><br>可以看出来，用atomic会在多线程的设值取值时加锁，中间的执行层是处于被保护的一种状态，atomic是oc使用的一种线程保护技术，基本上来讲，就是防止在写入未完成的时候被另外一个线程读取，造成数据错误。而这种机制是耗费系统资源的，所以在iPhone这种小型设备上，如果没有使用多线程间的通讯编程，那么nonatomic是一个非常好的选择。</p>
+<h3 id="u8BFB/_u5199_u6743_u9650_3Areadwrite_u548Creadonly"><a href="#u8BFB/_u5199_u6743_u9650_3Areadwrite_u548Creadonly" class="headerlink" title="读/写权限:readwrite和readonly"></a>读/写权限:readwrite和readonly</h3><p>readwrite会自动生成getter和setter方法.<br>readonly是只读的,只会生成getter方法.</p>
+<h3 id="u5185_u5B58_u7BA1_u7406_u8BED_u4E49_28_u6B64_u7279_u8D28_u4F1A_u5F71_u54CDsetter_u65B9_u6CD5_u7684_u751F_u6210_2C_u7F16_u8BD1_u5668_u5728_u5408_u6210setter_u65B9_u6CD5_u65F6_2C_u9700_u8981_u6839_u636E_u6B64_u7279_u8D28_u6765_u51B3_u5B9A_u6240_u751F_u6210_u7684_u4EE3_u7801_29"><a href="#u5185_u5B58_u7BA1_u7406_u8BED_u4E49_28_u6B64_u7279_u8D28_u4F1A_u5F71_u54CDsetter_u65B9_u6CD5_u7684_u751F_u6210_2C_u7F16_u8BD1_u5668_u5728_u5408_u6210setter_u65B9_u6CD5_u65F6_2C_u9700_u8981_u6839_u636E_u6B64_u7279_u8D28_u6765_u51B3_u5B9A_u6240_u751F_u6210_u7684_u4EE3_u7801_29" class="headerlink" title="内存管理语义(此特质会影响setter方法的生成,编译器在合成setter方法时,需要根据此特质来决定所生成的代码)"></a>内存管理语义(此特质会影响setter方法的生成,编译器在合成setter方法时,需要根据此特质来决定所生成的代码)</h3><blockquote>
+<p>下面出现的代码,该代码是系统生成属性时的原理复现代码</p>
+</blockquote>
+<h4 id="assign_28_u7EAF_u91CF_u7C7B_u578B_29"><a href="#assign_28_u7EAF_u91CF_u7C7B_u578B_29" class="headerlink" title="assign(纯量类型)"></a>assign(纯量类型)</h4><p>纯量类型:该属性为CGFloat,NSInteger,int,float,double等基础数据类型时,setter方法只会生成简单的赋值操作<br><figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (property != newValue) &#123;</span><br><span class="line">property = newValue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="strong_28_u62E5_u6709_u5173_u7CFB_29"><a href="#strong_28_u62E5_u6709_u5173_u7CFB_29" class="headerlink" title="strong(拥有关系)"></a>strong(拥有关系)</h4><p>拥有关系:先retain新值,release旧值,然后设置新值上去.<br><figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (property != newValue) &#123; </span><br><span class="line">[property release]; </span><br><span class="line">property = [newValue retain]; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="weak__28_u975E_u62E5_u6709_u5173_u7CFB_29"><a href="#weak__28_u975E_u62E5_u6709_u5173_u7CFB_29" class="headerlink" title="weak (非拥有关系)"></a>weak (非拥有关系)</h4><p>非拥有关系:同assign类似,即不retain新值,也不release旧值,只做简单的赋值操作.<br>但属性所指的对象被销毁时,属性值会被清空 = nil.通常用于对象.assign用于基本类型</p>
+<h4 id="unsafe_unretained__28_u975E_u62E5_u6709_u5173_u7CFB_2C_u4FDD_u7559_u5C5E_u6027_u503C_29"><a href="#unsafe_unretained__28_u975E_u62E5_u6709_u5173_u7CFB_2C_u4FDD_u7559_u5C5E_u6027_u503C_29" class="headerlink" title="unsafe_unretained (非拥有关系,保留属性值)"></a>unsafe_unretained (非拥有关系,保留属性值)</h4><p>非拥有关系:跟weak一样,非拥有关系,区别就是当新值被销毁后,该属性值还会保留.也就是对象的指针啦,容易野指针,不安全.</p>
+<h4 id="copy__28_u62F7_u8D1D_29"><a href="#copy__28_u62F7_u8D1D_29" class="headerlink" title="copy (拷贝)"></a>copy (拷贝)</h4><p>拷贝:拷贝新值,释放(release)旧值.常见于NSString类型的属性中.因为新值有可能是可变的(mutable),比如,NSMutableString类的实例赋值给NSString类型的属性.按照Strong类型的方法的话,就不太科学了.因为NSString指向的是NSMutableString的,也就是说在指不定在哪里这个属性被别的属性给改了,你却不知道.所以我们应该赋值的时候进行拷贝一份不可改变的,这样就有效的避免了.<br><figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (property != newValue) &#123; </span><br><span class="line">[property release]; </span><br><span class="line">property = [newValue <span class="keyword">copy</span>]; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="u65B9_u6CD5_u540D_28getter_u548Csetter_29_u53EF_u901A_u8FC7getter_u548Csetter_u7279_u8D28_u6765_u6307_u5B9A_u5B58_u53D6_u7684_u65B9_u6CD5_u540D"><a href="#u65B9_u6CD5_u540D_28getter_u548Csetter_29_u53EF_u901A_u8FC7getter_u548Csetter_u7279_u8D28_u6765_u6307_u5B9A_u5B58_u53D6_u7684_u65B9_u6CD5_u540D" class="headerlink" title="方法名(getter和setter)可通过getter和setter特质来指定存取的方法名"></a>方法名(getter和setter)可通过getter和setter特质来指定存取的方法名</h4><figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,getter = isOn) <span class="built_in">BOOL</span> on;<span class="comment">//getter方法的名字被改为isOn.</span></span><br></pre></td></tr></table></figure>
+<p>setter=<name>这种不太常见.</name></p>
+<h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><blockquote>
+<p>若是自己实现存取方法,必须要保证其具备相关属性的特质,否则会误导调用者,也可能会出现Bug.<br>不应该在init方法中调用存取方法,而是要遵守标示的语义,自行初始化.<br>即使属性中使用了readonly特质,也应该要标示内存管理语义,因为这样可以让本类的调用者知道在init方法中怎么初始化.如果每次初始化都用copy语义,难免有点低效.<br>应该尽量使用nonatomic属性,因为iOS中atomic属性会严重影响性能,而且也不能完全保证线程是安全的,若要实现线程安全,还需要更深层次的东西才行.<br>不通过setter方法而直接使用实例变量进行修改时,一定遵从该属性所声明的语义.</p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/06/13/Runtime相关/" itemprop="url">
                   Runtime相关
                 </a>
@@ -874,8 +1001,7 @@
 <h2 id="u2018couldn_u2019t_find_a_common_superview_for_XXX"><a href="#u2018couldn_u2019t_find_a_common_superview_for_XXX" class="headerlink" title="‘couldn’t find a common superview for XXX"></a>‘couldn’t find a common superview for XXX</h2><p>使用Masonry的View必须先要添加到父View上,才能进行布局.</p>
 <h2 id="u4F7F_u7528Masonry_2CAutoLayout_u660E_u660E_u8BBE_u7F6E_u4E86Top__3D_0_2C_u8FD8_u662F_u88ABNav_u6216_u8005Tab_u8986_u76D6"><a href="#u4F7F_u7528Masonry_2CAutoLayout_u660E_u660E_u8BBE_u7F6E_u4E86Top__3D_0_2C_u8FD8_u662F_u88ABNav_u6216_u8005Tab_u8986_u76D6" class="headerlink" title="使用Masonry,AutoLayout明明设置了Top = 0,还是被Nav或者Tab覆盖."></a>使用Masonry,AutoLayout明明设置了Top = 0,还是被Nav或者Tab覆盖.</h2><p>原文链接:<a href="http://www.jianshu.com/p/ab6d6f278e6d" target="_blank" rel="external">http://www.jianshu.com/p/ab6d6f278e6d</a><br>1.<br><figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#ifdef __IPHONE_7_0</span></span><br><span class="line">- (<span class="built_in">UIRectEdge</span>)edgesForExtendedLayout &#123;</span><br><span class="line"><span class="keyword">return</span> <span class="built_in">UIRectEdgeNone</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="preprocessor">#endif</span></span><br></pre></td></tr></table></figure></p>
 <p>2.<br>这个办法有几个控件就会调用几次edgesForExtendedLayout函数。<br>第二种就是修改导航栏的translucent为NO，iOS6(包括)前导航栏的translucent默认都是NO的，但是iOS7后translucent默认是YES的，我们修改一下透明度即可</p>
-<p>文／周俊佐（简书作者）<br>原文链接：<a href="http://www.jianshu.com/p/ab6d6f278e6d" target="_blank" rel="external">http://www.jianshu.com/p/ab6d6f278e6d</a><br>著作权归作者所有，转载请联系作者获得授权，并标注“简书作者”。<br><figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)loadView &#123;</span><br><span class="line"><span class="keyword">self</span><span class="variable">.view</span> = <span class="keyword">self</span><span class="variable">.viewClass</span><span class="variable">.new</span>;</span><br><span class="line"><span class="keyword">self</span><span class="variable">.view</span><span class="variable">.backgroundColor</span> = [<span class="built_in">UIColor</span> whiteColor];</span><br><span class="line"><span class="keyword">self</span><span class="variable">.navigationController</span><span class="variable">.navigationBar</span><span class="variable">.translucent</span> = <span class="literal">NO</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-
+<figure class="highlight objc"><figcaption><span>Objc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)loadView &#123;</span><br><span class="line"><span class="keyword">self</span><span class="variable">.view</span> = <span class="keyword">self</span><span class="variable">.viewClass</span><span class="variable">.new</span>;</span><br><span class="line"><span class="keyword">self</span><span class="variable">.view</span><span class="variable">.backgroundColor</span> = [<span class="built_in">UIColor</span> whiteColor];</span><br><span class="line"><span class="keyword">self</span><span class="variable">.navigationController</span><span class="variable">.navigationBar</span><span class="variable">.translucent</span> = <span class="literal">NO</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           
         
       
@@ -1005,6 +1131,10 @@
           
             <h2 id="u5E38_u89C1_u9519_u8BEF"><a href="#u5E38_u89C1_u9519_u8BEF" class="headerlink" title="常见错误"></a>常见错误</h2><figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- <span class="escape">`M</span>asonry (~&gt; <span class="number">0.6</span>.<span class="number">4</span>)<span class="escape">` </span>required by <span class="escape">`P</span>odfile`</span><br></pre></td></tr></table></figure>
 <p>有的第三方框架说明文件上写着 <code>pod &#39;Masonry&#39;</code> 但就是安装失败,是因为你的PodFile文件里没有指定平台最低版本.<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">platform <span class="symbol">:ios</span>, <span class="string">'6.0'</span></span><br><span class="line">pod <span class="string">'JSONKit'</span>,       <span class="string">'~&gt; 1.4'</span></span><br><span class="line">pod <span class="string">'Masonry'</span></span><br></pre></td></tr></table></figure><br>指定上版本就好了,我个项目最低支持6.0.<br>后来仔细想了想,PodFile里指定项目版本是必须的,方便人家框架判断适不适合用在你的项目上,不应该是第三方框架的问题,所以这个锅肯定不能给第三方框架,而是给唐巧boy,就是因为看了他的教程,这么重要的东西怎么能不写呢????<br>坚决好好学习英语,自己看官方的文档,能把人气死,每天都浪费这么多时间~~</p>
+<h2 id="CocoaPods_u66F4_u65B0_u6162_u7684_u95EE_u9898"><a href="#CocoaPods_u66F4_u65B0_u6162_u7684_u95EE_u9898" class="headerlink" title="CocoaPods更新慢的问题"></a>CocoaPods更新慢的问题</h2><p>最近使用CocoaPods来添加第三方类库，无论是执行pod install还是pod update都卡在了Analyzing dependencies不动了，令人甚是DT。</p>
+<p>查了好多的资料，原因在于当执行以上两个命令的时候会升级CocoaPods的spec仓库，加一个参数可以省略这一步，然后速度就会提升不少。加参数的命令如下：</p>
+<p>pod install –verbose –no-repo-update</p>
+<p>pod update –verbose –no-repo-update<br>原文:<a href="http://www.cnblogs.com/yiqiedejuanlian/p/3698788.html" target="_blank" rel="external">http://www.cnblogs.com/yiqiedejuanlian/p/3698788.html</a></p>
 
           
         
@@ -1421,135 +1551,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/12/30/iOS开发淫技/" itemprop="url">
-                  iOS开发淫技
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-12-30T09:11:23+08:00" content="2015-12-30">
-              2015-12-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/12/30/iOS开发淫技/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/iOS开发淫技/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/12/30/iOS开发淫技/" class="leancloud_visitors" data-flag-title="iOS开发淫技">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="u67E5_u770B_u4E00_u4E2A_u7C7B_u63D0_u4F9B_u4E86_u54EA_u4E9B_u63A5_u53E3_u4F9B_u6211_u4EEC_u4F7F_u7528"><a href="#u67E5_u770B_u4E00_u4E2A_u7C7B_u63D0_u4F9B_u4E86_u54EA_u4E9B_u63A5_u53E3_u4F9B_u6211_u4EEC_u4F7F_u7528" class="headerlink" title="查看一个类提供了哪些接口供我们使用"></a>查看一个类提供了哪些接口供我们使用</h2><p>进入到那个类后,首先看它的<code>头文件</code>,头文件还没找到自己想要的方法,可以继续找<code>父类</code>.父类还没要找到的话,就看这个类实现了哪些<code>接口</code>,去接口里找找.</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1595,7 +1596,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
