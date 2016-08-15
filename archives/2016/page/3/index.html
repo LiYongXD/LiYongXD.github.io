@@ -84,16 +84,15 @@
 
 
 
-<meta name="description" content="理解objc_msgSend的作用静态绑定与动态绑定静态绑定代码示例c1234567891011121314151617181920212223#import &amp;lt;stdio.h&amp;gt;void printHello()&amp;#123;    printf(&quot;Hello World!\n&quot;);&amp;#125;void printGoodbye()&amp;#123;    printf(&quot;GoodBye Wo">
-<meta property="og:type" content="article">
-<meta property="og:title" content="理解objc_msgSend的作用">
-<meta property="og:url" content="www.devyong.com/2016/06/21/理解objc-msgSend的作用/index.html">
+<meta name="description" content="草地上奔跑的壮汉 | YongXD | iOS博客">
+<meta property="og:type" content="website">
+<meta property="og:title" content="草地上奔跑的壮汉">
+<meta property="og:url" content="www.devyong.com/archives/2016/page/3/index.html">
 <meta property="og:site_name" content="草地上奔跑的壮汉">
-<meta property="og:description" content="理解objc_msgSend的作用静态绑定与动态绑定静态绑定代码示例c1234567891011121314151617181920212223#import &amp;lt;stdio.h&amp;gt;void printHello()&amp;#123;    printf(&quot;Hello World!\n&quot;);&amp;#125;void printGoodbye()&amp;#123;    printf(&quot;GoodBye Wo">
-<meta property="og:updated_time" content="2016-06-21T04:03:14.000Z">
+<meta property="og:description" content="草地上奔跑的壮汉 | YongXD | iOS博客">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="理解objc_msgSend的作用">
-<meta name="twitter:description" content="理解objc_msgSend的作用静态绑定与动态绑定静态绑定代码示例c1234567891011121314151617181920212223#import &amp;lt;stdio.h&amp;gt;void printHello()&amp;#123;    printf(&quot;Hello World!\n&quot;);&amp;#125;void printGoodbye()&amp;#123;    printf(&quot;GoodBye Wo">
+<meta name="twitter:title" content="草地上奔跑的壮汉">
+<meta name="twitter:description" content="草地上奔跑的壮汉 | YongXD | iOS博客">
 
 
 
@@ -114,9 +113,9 @@
 
 
 
-  <link rel="canonical" href="www.devyong.com/2016/06/21/理解objc-msgSend的作用/"/>
+  <link rel="canonical" href="www.devyong.com/archives/2016/page/3/"/>
 
-  <title> 理解objc_msgSend的作用 | 草地上奔跑的壮汉 </title>
+  <title> 归档 | 草地上奔跑的壮汉 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -147,7 +146,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container one-collumn sidebar-position-left  page-archive  ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -285,143 +284,70 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-collapse">
+    <span class="archive-move-on"></span>
+
+    <span class="archive-page-counter">
+      
+      
+      
+        
+      
+      嗯..! 目前共计 28 篇日志。 继续努力。
+    </span>
+
     
 
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                理解objc_msgSend的作用
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-21T10:26:46+08:00" content="2016-06-21">
-              2016-06-21
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/06/21/理解objc-msgSend的作用/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/21/理解objc-msgSend的作用/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/06/21/理解objc-msgSend的作用/" class="leancloud_visitors" data-flag-title="理解objc_msgSend的作用">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
+      
       
       
 
-      
-        <h2 id="u7406_u89E3objc_msgSend_u7684_u4F5C_u7528"><a href="#u7406_u89E3objc_msgSend_u7684_u4F5C_u7528" class="headerlink" title="理解objc_msgSend的作用"></a>理解objc_msgSend的作用</h2><h3 id="u9759_u6001_u7ED1_u5B9A_u4E0E_u52A8_u6001_u7ED1_u5B9A"><a href="#u9759_u6001_u7ED1_u5B9A_u4E0E_u52A8_u6001_u7ED1_u5B9A" class="headerlink" title="静态绑定与动态绑定"></a>静态绑定与动态绑定</h3><h4 id="u9759_u6001_u7ED1_u5B9A_u4EE3_u7801_u793A_u4F8B"><a href="#u9759_u6001_u7ED1_u5B9A_u4EE3_u7801_u793A_u4F8B" class="headerlink" title="静态绑定代码示例"></a>静态绑定代码示例</h4><figure class="highlight c"><figcaption><span>c</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#import &lt;stdio.h&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printHello</span><span class="params">()</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello World!\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printGoodbye</span><span class="params">()</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"GoodBye World!\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doTheThing</span><span class="params">(<span class="keyword">int</span> type)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(type == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        printHello(); <span class="comment">//在编译代码时已经知道程序此时需要调用printHello这个函数,于是在这会生成调用这些函数的指令.printHello这个函数地址被硬编码在指令之中,这就叫静态绑定.</span></span><br><span class="line">    &#125;<span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        printGoodbye();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="u52A8_u6001_u7ED1_u5B9A_u4EE3_u7801_u793A_u4F8B"><a href="#u52A8_u6001_u7ED1_u5B9A_u4EE3_u7801_u793A_u4F8B" class="headerlink" title="动态绑定代码示例"></a>动态绑定代码示例</h4><figure class="highlight c"><figcaption><span>c</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#import &lt;stdio.h&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printHello</span><span class="params">()</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello World!\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printGoodbye</span><span class="params">()</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"GoodBye World!\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doTheThing</span><span class="params">(<span class="keyword">int</span> type)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">void</span> (*fnc)();</span><br><span class="line">    <span class="keyword">if</span>(type == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        fnc = printHello;<span class="comment">//与静态绑定不同,将函数地址赋值给一个变量,并不是将地址硬编码到指令中去.</span></span><br><span class="line">    &#125;<span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        fnc = printGoodbye;</span><br><span class="line">    &#125;</span><br><span class="line">    fnc();<span class="comment">//动态绑定,因为fnc指向的函数地址是不确定的,无法硬编码到指令中去,需要到运行期才能确定.</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>#### </p>
-
-      
-    </div>
-
-    <div>
       
         
-      
-    </div>
-
-    <div>
-      
-        
-
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2016/06/21/Objective-C中的属性修饰符/" rel="next" title="Objective-C中的属性修饰符">
-                <i class="fa fa-chevron-left"></i> Objective-C中的属性修饰符
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/06/21/在对象内部尽量直接访问实例变量/" rel="prev" title="在对象内部尽量直接访问实例变量">
-                在对象内部尽量直接访问实例变量 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
+        <div class="collection-title">
+          <h2 class="archive-year motion-element" id="archive-year-2016">2016</h2>
         </div>
       
+      
 
       
-      
-    </footer>
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/01/04/Flask返回Json数据/" itemprop="url">
+              
+                <span itemprop="name">使用Flask框架返回Json数据</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-01-04T10:59:16+08:00"
+              content="2016-01-04" >
+          01-04
+        </time>
+      </div>
+
+    </header>
   </article>
 
 
 
-    <div class="post-spread">
-      
-        
-<script>
-  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
-</script>
+    
 
-      
-    </div>
-  </div>
+  </section>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/archives/2016/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/archives/2016/">1</a><a class="page-number" href="/archives/2016/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
+
+
 
 
           </div>
@@ -429,14 +355,6 @@
 
 
           
-  <div class="comments" id="comments">
-    
-      <div class="ds-thread" data-thread-key="2016/06/21/理解objc-msgSend的作用/"
-           data-title="理解objc_msgSend的作用" data-url="www.devyong.com/2016/06/21/理解objc-msgSend的作用/">
-      </div>
-    
-  </div>
-
 
         </div>
         
@@ -456,17 +374,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/uploads/avatar.png"
@@ -534,17 +443,6 @@
 
       </section>
 
-      
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-            
-              
-            
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#u7406_u89E3objc_msgSend_u7684_u4F5C_u7528"><span class="nav-number">1.</span> <span class="nav-text">理解objc_msgSend的作用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u9759_u6001_u7ED1_u5B9A_u4E0E_u52A8_u6001_u7ED1_u5B9A"><span class="nav-number">1.1.</span> <span class="nav-text">静态绑定与动态绑定</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#u9759_u6001_u7ED1_u5B9A_u4EE3_u7801_u793A_u4F8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">静态绑定代码示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u52A8_u6001_u7ED1_u5B9A_u4EE3_u7801_u793A_u4F8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">动态绑定代码示例</span></a></li></ol></li></ol></li></ol></div>
-            
-          </div>
-        </section>
       
 
     </div>
@@ -641,9 +539,11 @@
   
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
-
+  
+    <script type="text/javascript" id="motion.page.archive">
+      $('.archive-year').velocity('transition.slideLeftIn');
+    </script>
+  
 
 
   
